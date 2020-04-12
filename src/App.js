@@ -7,26 +7,24 @@ function App() {
   const [repositories, setRepositories] = useState([])
 
   useEffect(() => {
+    async function loadRepositories() {
+      const response = await api.get('/repositories');
+      setRepositories(response.data);
+    }
+
     loadRepositories();
   }, [])
 
-  async function loadRepositories() {
-    const response = await api.get('/repositories');
-    setRepositories(response.data);
-  }
-  
   async function handleAddRepository() {
     const response = await api.post('/repositories', {
-      "title": "Desafio node.js 5",
-      "url": "http://github.com/...",
-      "techs": [
-        "Nodejs",
-        "JS"
-      ]
+      id: "123",
+      url: "https://github.com/josepholiveira",
+      title: "Desafio ReactJS",
+      techs: ["React", "Node.js"],
     })
 
     if (response.status === 200) {
-      loadRepositories()
+      setRepositories([...repositories, response.data])
     }
   }
 
@@ -34,7 +32,13 @@ function App() {
     const response = await api.delete(`/repositories/${id}`)
 
     if (response.status === 204) {
-      loadRepositories()
+      const repositoryIndex = repositories.findIndex(value => value.id === id)
+
+      if (repositoryIndex >= 0) {
+        const updatedRepository = [...repositories]
+        updatedRepository.splice(repositoryIndex, 1)
+        setRepositories(updatedRepository)
+      }
     }
   }
 
